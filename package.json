@@ -1,7 +1,7 @@
 {
   "name": "oricaptcha",
-  "version": "0.0.1",
-  "description": "cptcha for OrigamiCore",
+  "version": "0.0.6",
+  "description": "origamicore captcha",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,9 @@
     "url": "git+https://github.com/vahidHossaini/OriCaptcha.git"
   },
   "keywords": [
-    "captcha"
+    "origamicore",
+    "captcha",
+    "recaptcha"
   ],
   "author": "",
   "license": "MIT",
