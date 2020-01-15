@@ -1,13 +1,18 @@
 var captchapng = require('captchapng');
 var uuid=require("uuid");
 var localStorage={};
+function getRandomArbitrary(min, max) {
+
+    var r = Math.floor(Math.random() * (max - min + 1) + min); 
+	return r
+}
 function GetrandInt(n=12)
 {
     var str=''
     var sr='23456890'
     for(var a=0;a<n;a++)
     {
-        var i=getRandomArbitrary(0,sr.length)
+        var i=getRandomArbitrary(0,sr.length-1)
         str+=sr[i]
     }
     if(str[0]=='0')
@@ -30,16 +35,17 @@ module.exports = class simple
 	} 
 	async acceptCode(id)
 	{
-		if(this.storage==ram)
+		if(this.storage=="ram")
 		{
 			 localStorage[id].accept=true; 
 		}
 	}
 	async getCode(id)
 	{
-		if(this.storage==ram)
+		if(this.storage=="ram")
 		{
-			var x= localStorage[id]; 
+			var x= localStorage[id];  
+			return x;
 		}
 		return {};
 	}
@@ -47,36 +53,40 @@ module.exports = class simple
 	{
 		var id =uuid.v4();
 		if(mid)id=mid;
-		if(this.storage==ram)
+		if(this.storage=="ram")
 		{
 			localStorage[id]={code,date:new Date()}
 		}
 		return id;
 	}
-	async get(msg)
+	async get(msg,func)
 	{ 
-        var code=GetrandInt(this.length)
-        var p = new captchapng(this.width,this.height,code);
+		var code=GetrandInt(this.length); 
+        var p = new captchapng(this.width,this.height,code); 
+		p.color(0, 0, 0, 0);
+		p.color(80, 80, 80, 255);
+        var img = p.getBase64(); 
 		var id=await this.setCode(code);
-		return {id}
+		 
+		return func(null,{id,image:img}) 
 	}
-	async set(msg)
+	async set(msg,func)
 	{
 	 	var dt=msg.data;
 		var v= await this.getCode(dt.id);
 		if(v.code==dt.code)
 		{
 			await this.acceptCode(dt.id);
-			return {accept:true}
+			return func(null,{accept:true}) 
 		} 
 		var p = new captchapng(this.width,this.height,GetrandInt(this.length));
 		var id=await this.setCode(p,dt.id);
-		return {id:dt.id} 
+		return func(null,{id:dt.id} ) 
 	}
-	async validate(msg)
+	async validate(msg,func)
 	{ 
 	 	var dt=msg.data;
 		var v= await this.getCode(dt.id);
-		return dt.accept;
+		return func(null,v.accept) ;
 	}
 }
